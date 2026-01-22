@@ -298,7 +298,7 @@ void AddClientsToFile(string Filename)
 	cout << "=============================================\n";
 	cout << "\t\tAdd Clients Screen\n";
 	cout << "=============================================\n";
-	char ch = 'y';
+	char ch = 'N';
 	StClient Client;
 	string line;
 	do
@@ -310,7 +310,7 @@ void AddClientsToFile(string Filename)
 		cout << "The Client Added Successfully :-)\n";
 		cout << "Do you want to add more client to this file(Y/N) ? ";
 		cin >> ch;
-	} while (toupper(ch == 'Y'));
+	} while (ch == 'Y' || ch == 'y');
 
 }
 vector<StClient>LoadDataClientsFromFile(string Filename)
@@ -524,9 +524,9 @@ void update(vector<StClient>Clients, string AccountNumber)
 					line = RecordToLine(Client);
 					fout << line << endl;
 				}
-				fout.close();
+				
 			}
-
+		fout.close();
 
 	}
 }
