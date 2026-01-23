@@ -68,17 +68,19 @@ bool Search(vector<StClient>Clients, string AccountNumber)
 	}
 	return false;
 }
-bool SearchAccountNumber(vector<StClient>Clients, string AccountNumber, int n)
+bool SearchAccountNumber(vector<StClient>Clients, string&AccountNumber, int n)
 {
-	n -= 1;
-	do
+	if (Search(Clients, AccountNumber))
+		return true;
+	
+	while (--n)
 	{
-		if (Search(Clients, AccountNumber))
-			return 1;
 		cout << "You have " << n << "tempt\n";
 		AccountNumber = ReadAccountNumber();
-	} while (--n);
-	return 0;
+		if (Search(Clients, AccountNumber))
+			return true;
+	}
+	return false;
 }
 vector<string>Splet(string s, string sep = " ")
 {
@@ -103,7 +105,7 @@ vector<string>Splet(string s, string sep = " ")
 }
 void BackTomainMinue()
 {
-	cout << "press any key to go back.............";
+	
 	system("pause");
 	showMainMinue();
 
@@ -228,8 +230,10 @@ StUsers ReadUserInfo()
 StClient ReadClientInfo_toUpdate()
 {
 	StClient Client;
+	cout << "Enter Account Number :";
+	getline(cin >> ws, Client.AccountNumber);
 	cout << "Enter Pin Code : ";
-	getline(cin >> ws, Client.PinCode);
+	getline(cin , Client.PinCode);
 	cout << "Enter Name : ";
 	getline(cin, Client.Name);
 	cout << "Enter Phone Number : ";
@@ -584,35 +588,71 @@ void find()
 double EnterHowManyDipositeNumber()
 {
 	double Dep;
-	cout << "Enter Your Diposite Number: ";
+	cout << "Enter an Amount of Diposite Number: ";
 	cin >> Dep;
+	while (Dep <= 0)
+	{
+		cout << "Enter an Amount of Diposite Number: ";
+		cin >> Dep;
+	}
 	return Dep;
 }
-void deposite(vector<StClient>& Clients, string AccountNumber, double Dep)
+double EnterHowManyWithdrawNumber()
+{
+	double Withd;
+	cout << "Enter an Amount of Withdraw Number: ";
+	cin >> Withd;
+	while (Withd <= 0)
+	{
+		cout << "Enter an Amount of Withdraw Number: ";
+		cin >> Withd;
+	}
+	return Withd;
+}
+void deposite(vector<StClient>&Clients, string AccountNumber, double Dep)
 {
 	fstream fout;
 	fout.open(ClientsFile, ios::out);
 	if (fout.is_open())
 	{
-		for (StClient& Client : Clients)
+		for (StClient&Client : Clients)
 		{
 			string line;
 			if (Client.AccountNumber == AccountNumber)
 			{
-				if (Dep >= 0 || (Dep < 0 && Client.AccountBalance >= (Dep * -1)))
-				{
-					Client.AccountBalance += Dep;
-					cout << "Done Successfully\n";
-				}
+				Client.AccountBalance += Dep;
+			}
+			line = RecordToLine(Client, "#*#");
+			fout << line << endl;
+		}
+	}
+	fout.close();
+
+}
+void withdraw(vector<StClient>&Clients, string AccountNumber, double Withd)
+{
+	fstream fout;
+	fout.open(ClientsFile, ios::out);
+	if (fout.is_open())
+	{
+		for (StClient&Client : Clients)
+		{
+			string line;
+			if (AccountNumber == Client.AccountNumber)
+			{
+				if (Withd <= Client.AccountBalance)
+					Client.AccountBalance -= Withd;
 				else
+
 				{
-					cout << "You have not enough many :-(\n";
+					cout << "You have not enough money to do that\n";
 				}
 			}
 			line = RecordToLine(Client, "#*#");
 			fout << line << endl;
 		}
 	}
+	fout.close();
 
 }
 void DepositeToClient()
@@ -637,9 +677,8 @@ void WithDraw()
 	string AccountNumber = ReadAccountNumber();
 	if (SearchAccountNumber(Clients, AccountNumber, 3))
 	{
-		double Dep = EnterHowManyDipositeNumber();
-		Dep *= -1;
-		deposite(Clients, AccountNumber, Dep);
+		double withd = EnterHowManyWithdrawNumber();
+		withdraw(Clients, AccountNumber, withd);
 	}
 	else
 	{
